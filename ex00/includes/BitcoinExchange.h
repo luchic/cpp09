@@ -6,7 +6,7 @@
 /*   By: nluchini <nluchini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 18:02:33 by nluchini          #+#    #+#             */
-/*   Updated: 2025/12/19 16:10:09 by nluchini         ###   ########.fr       */
+/*   Updated: 2025/12/19 21:34:46 by nluchini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@
 typedef enum e_error_code {
     ERR_BAD_HEADER,
     ERR_BAD_INPUT,
-    ERR_INVALID_DATE,
+    ERR_INVALID_DATE_FORMAT,
+	ERR_INVALID_DATE_NUMBERS,
     ERR_NEGATIVE,
 	ERR_NOT_NUMBER,
     ERR_LARGE_VALUE,
@@ -43,7 +44,8 @@ private:
 	std::string _trimSpace(std::string str);
 	bool _isLeap(int year);
 	void _initDataBase(std::string dataBase = "");
-	bool _isValidDate(std::string date);
+	bool _isValidDateFormat(std::string date);
+	bool _isValidDateNumbers(std::string date);
 	bool _isValidFormat(std::string format);
 	void _printErrorMessage(std::string value, t_error_code code);
 	void _printErrorMessage(t_error_code code);

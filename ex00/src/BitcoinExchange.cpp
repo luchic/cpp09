@@ -6,7 +6,7 @@
 /*   By: nluchini <nluchini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 20:24:16 by nluchini          #+#    #+#             */
-/*   Updated: 2025/12/19 16:43:38 by nluchini         ###   ########.fr       */
+/*   Updated: 2025/12/19 21:36:59 by nluchini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,8 @@ BitcoinExchange::BitcoinExchange(std::string dataBase)
 BitcoinExchange& BitcoinExchange::operator=(const BitcoinExchange& other)
 {
     if (this != &other)
-        _dataAccess = other._dataAccess;
-    return *this;
+		_dataAccess = other._dataAccess;
+	return *this;
 }
 
 BitcoinExchange::~BitcoinExchange()
@@ -92,7 +92,7 @@ void BitcoinExchange::_initDataBase(std::string dataBase)
 	}
 
 	while (std::getline(db, line))
-    {
+	{
 		if (line.empty())
 			continue;
 
@@ -103,8 +103,10 @@ void BitcoinExchange::_initDataBase(std::string dataBase)
 		std::string date = _trimSpace(fields[0]);
 		std::string rateStr = _trimSpace(fields[1]);
 
-		if (!_isValidDate(date))
-            continue;
+		if (!_isValidDateFormat(date))
+			continue;
+		if (!_isValidDateNumbers(date))
+			continue;
 
 		std::optional<float> rate = _convertValue(rateStr);
 		if (!rate.has_value())
@@ -126,8 +128,12 @@ void BitcoinExchange::_printErrorMessage(std::string value, t_error_code code)
 	case ERR_BAD_INPUT:
 		std::cout << "Bad input data => " << value  << "" << std::endl; 
 		break;
-	case ERR_INVALID_DATE:
+	case ERR_INVALID_DATE_FORMAT:
 		std::cout << "Invalid data: " << value << " expected: YYYY-MM-DD"
+			<< std::endl;
+ 		break;
+	case ERR_INVALID_DATE_NUMBERS:
+		std::cout << "Invalid data: " << value << " impossible date."
 			<< std::endl;
  		break;
 	case ERR_NEGATIVE:
@@ -174,22 +180,8 @@ bool BitcoinExchange::_isLeap(int year)
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 
-
-bool BitcoinExchange::_isValidDate(std::string date)
+bool BitcoinExchange::_isValidDateNumbers(std::string date)
 {
-	if (date.size() != 10)
-		return false;
-	if (date[4] != '-' || date[7] != '-')
-		return false;
-
-	for (int i = 0; i < 10; ++i)
-	{
-		if (i == 4 || i == 7)
-			continue;
-		if (!std::isdigit(date[i]))
-			return false;
-	}
-
 	int year  = (date[0]-'0')*1000 + (date[1]-'0')*100 +
 		(date[2]-'0')*10 + (date[3]-'0');
 	int month = (date[5]-'0')*10   + (date[6]-'0');
@@ -204,6 +196,23 @@ bool BitcoinExchange::_isValidDate(std::string date)
 		maxDay = 29;
 		
 	return day >= 1 && day <= maxDay;
+}
+
+bool BitcoinExchange::_isValidDateFormat(std::string date)
+{
+	if (date.size() != 10)
+		return false;
+	if (date[4] != '-' || date[7] != '-')
+		return false;
+
+	for (int i = 0; i < 10; ++i)
+	{
+		if (i == 4 || i == 7)
+			continue;
+		if (!std::isdigit(date[i]))
+			return false;
+	}
+	return true;
 }
 
 bool BitcoinExchange::_isValidFormat(std::string format)
@@ -234,10 +243,16 @@ void BitcoinExchange::_convertLine(std::string line)
 		return;
 	}
 	std::string date = _trimSpace(tokens[0]);
-	if(!_isValidDate(date))
+	if(!_isValidDateFormat(date))
 	{
-		_printErrorMessage(date, ERR_INVALID_DATE);
+		_printErrorMessage(date, ERR_INVALID_DATE_FORMAT);
 		return;
+	}
+
+	if(!_isValidDateNumbers(date))
+	{
+		_printErrorMessage(date, ERR_INVALID_DATE_NUMBERS);
+		return ;
 	}
 	
 	std::optional<float> opt_value = _convertValue(tokens[1]);
