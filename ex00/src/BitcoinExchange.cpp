@@ -6,7 +6,7 @@
 /*   By: nluchini <nluchini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 20:24:16 by nluchini          #+#    #+#             */
-/*   Updated: 2025/12/19 16:14:23 by nluchini         ###   ########.fr       */
+/*   Updated: 2025/12/19 16:43:38 by nluchini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,14 @@ std::string BitcoinExchange::_trimSpace(std::string s)
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(), notSpace));
 	s.erase(std::find_if(s.rbegin(), s.rend(), notSpace).base(), s.end());
 	return s;
+}
+
+std::optional<float> BitcoinExchange::_getCostByDate(std::string date)
+{
+	auto it = _dataAccess.lower_bound(date);
+	if (it == _dataAccess.end())
+		return std::nullopt;
+	return it->second;	
 }
 
 void BitcoinExchange::_initDataBase(std::string dataBase)
@@ -138,6 +146,11 @@ void BitcoinExchange::_printErrorMessage(std::string value, t_error_code code)
 		std::cout << "no expected error" << std::endl;
 		break;
 	}	
+}
+
+void BitcoinExchange::_printErrorMessage(t_error_code code)
+{
+	_printErrorMessage("", code);
 }
 
 std::optional<float> BitcoinExchange::_convertValue(std::string value)
@@ -217,7 +230,7 @@ void BitcoinExchange::_convertLine(std::string line)
 	auto tokens = _split(line, DATE_VALUE_DELIMITER);
 	if(tokens.size() != 2)
 	{
-		_printErrorMessage(ERR_BAD_INPUT);
+		_printErrorMessage(line, ERR_BAD_INPUT);
 		return;
 	}
 	std::string date = _trimSpace(tokens[0]);
