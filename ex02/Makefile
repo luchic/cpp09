@@ -17,7 +17,7 @@ all: $(NAME)
 $(NAME): $(OBJ_FILES)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-$(OBJ_FOLDER)/%.o: $(SRC_FOLDER)/%.cpp $(OBJ_FOLDER)
+$(OBJ_FOLDER)/%.o: $(SRC_FOLDER)/%.cpp | $(OBJ_FOLDER)
 	$(CXX) $(CXXFLAGS) -I$(INCLUDES) -c $< -o $@
 
 $(OBJ_FOLDER):
