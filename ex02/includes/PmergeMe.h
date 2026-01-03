@@ -6,7 +6,7 @@
 /*   By: nluchini <nluchini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/20 11:54:43 by nluchini          #+#    #+#             */
-/*   Updated: 2025/12/31 13:26:07 by nluchini         ###   ########.fr       */
+/*   Updated: 2026/01/03 15:39:51 by nluchini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,15 +32,16 @@ private:
 	std::vector<int> _tmpMainVector;
 	std::vector<int> _tmpPendVector;
 
+	std::size_t _jacobsthalNumber(std::size_t n);
+	std::vector<std::size_t> _jacobInsertionOrder(std::size_t pairCount);
+	void _insertJacobBlock(
+		std::vector<std::vector<int>>& mainFlat,
+		std::vector<int> value,
+		std::size_t index);
+
 	void _swapPair(std::vector<int> &small, std::vector<int> &big);
-	void _swap(std::size_t i, std::size_t j);
 	
-	void _fillMain(int level);
-	void _fillPend(int level);
-	void _preMerging(int level);
-	void _insert(int value);
 	void _merging(int level);
-	int _getJacobsthalNumber(int level);
 
 	void _sortVector(int level);
 	void _sortQueue();
@@ -57,6 +58,7 @@ public:
 	void printVector();
 	void printPendCurrentState();
 	void printMainCurrentState();
+	bool isSorted() const;
 };
 
 #endif
