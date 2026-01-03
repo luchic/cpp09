@@ -6,7 +6,7 @@
 /*   By: nluchini <nluchini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 19:02:28 by nluchini          #+#    #+#             */
-/*   Updated: 2026/01/03 16:10:25 by nluchini         ###   ########.fr       */
+/*   Updated: 2026/01/03 17:31:13 by nluchini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,8 @@
 #include <iostream>
 #include <algorithm>
 
-
-
-std::size_t PmergeMe::_jacobsthalNumber(std::size_t n)
+template <typename _Seq>
+std::size_t PmergeMe<_Seq>::_jacobsthalNumber(std::size_t n)
 {
 
 	if (n == 0) return 0;
@@ -32,7 +31,8 @@ std::size_t PmergeMe::_jacobsthalNumber(std::size_t n)
 	return j1;
 }
 
-std::vector<std::size_t> PmergeMe::_jacobInsertionOrder(std::size_t pairCount)
+template <typename _Seq>
+std::vector<std::size_t> PmergeMe<_Seq>::_jacobInsertionOrder(std::size_t pairCount)
 {
 	std::vector<std::size_t> order;
 	if (pairCount == 0)
@@ -61,100 +61,126 @@ std::vector<std::size_t> PmergeMe::_jacobInsertionOrder(std::size_t pairCount)
 	return order;
 }
 
-void PmergeMe::_insertJacobBlock(
-	std::vector<std::vector<int>>& mainFlat,
-	std::vector<int> value,
+template <typename _Seq>
+void PmergeMe<_Seq>::_insertJacobBlock(
+	std::vector<_Seq>& mainFlat,
+	_Seq value,
 	std::size_t index)
 {
 	auto insertValue = *(value.rbegin());
 	auto pos = std::upper_bound(mainFlat.begin(),
 			mainFlat.begin() + index + 2, 
 			insertValue,
-			[](int v, const std::vector<int>& block) {
+			[](int v, const _Seq& block) {
 				return v < block.back();
 			});
 	mainFlat.insert(pos, value);
 }
 
-
-bool PmergeMe::isSorted() const
+template <typename _Seq>
+bool PmergeMe<_Seq>::isSorted() const
 {
-	return std::is_sorted(_originVector.begin(), _originVector.end());
+	return std::is_sorted(_origin.begin(), _origin.end());
 }
 
-PmergeMe::PmergeMe()
+template <typename _Seq>
+PmergeMe<_Seq>::PmergeMe()
 {}
 
-PmergeMe::PmergeMe(const PmergeMe& other) :
-	_originVector(other._originVector),
+template <typename _Seq>
+PmergeMe<_Seq>::PmergeMe(const PmergeMe& other) :
+	_origin(other._origin),
 	_originQueue(other._originQueue)
 {
 }
 
-PmergeMe& PmergeMe::operator=(const PmergeMe& other)
+template <typename _Seq>
+PmergeMe<_Seq>& PmergeMe<_Seq>::operator=(const PmergeMe<_Seq>& other)
 {
 	if (this != &other)
 	{
 		_originQueue = other._originQueue;
-		_originVector = other._originVector;
+		_origin = other._origin;
 	}
 	return *this;
 }
 
-PmergeMe::~PmergeMe()
+template <typename _Seq>
+PmergeMe<_Seq>::~PmergeMe()
 {
 }
 
-PmergeMe::PmergeMe(std::vector<int> values)
+template <typename _Seq>
+PmergeMe<_Seq>::PmergeMe(_Seq values)
 {
 	for (int element : values)
 	{
-		_originQueue.push(element);
-		_originVector.push_back(element);
+		_origin.push_back(element);
 	}
 }
 
-void PmergeMe::printVector()
+template <typename _Seq>
+void PmergeMe<_Seq>::print()
 {
-	if (_originVector.size() == 0)
+	if (_origin.size() == 0)
 	{
 		std::cout << "Empty." << std::endl;
 		return;
 	}
-	std::cout << "Vector: " << _originVector[0];
-	for(std::size_t i = 1; i < _originVector.size(); ++i)
+	std::cout << _origin[0];
+	for(std::size_t i = 1; i < _origin.size(); ++i)
 	{
-		std::cout << " " << _originVector[i];
+		std::cout << " " << _origin[i];
 	}
 	std::cout << std::endl;
 }
 
-void PmergeMe::_swapPair(std::vector<int> &small, std::vector<int> &big)
+template <typename _Seq>
+void PmergeMe<_Seq>::printFirst(std::size_t first)
+{
+	if (_origin.size() == 0)
+	{
+		std::cout << "Empty." << std::endl;
+		return;
+	}
+	std::cout << _origin[0];
+	for(std::size_t i = 1; i < _origin.size() && i < first; ++i)
+	{
+		std::cout << " " << _origin[i];
+	}
+	if (first < _origin.size())
+		std::cout << " [..]";
+	std::cout << std::endl;
+}
+
+template <typename _Seq>
+void PmergeMe<_Seq>::_swapPair(_Seq &small, _Seq &big)
 {
 	auto tmp = small;
 	small = big;
 	big = tmp;
 }
 
-void PmergeMe::_merging(
+template <typename _Seq>
+void PmergeMe<_Seq>::_merging(
 	const std::size_t blockSize,
 	const std::size_t chunkSize)
 {
-	if (blockSize == 0 || _originVector.size() < chunkSize)
+	if (blockSize == 0 || _origin.size() < chunkSize)
 		return;
 
 	Pairs pairs;
-	pairs.reserve(_originVector.size() / chunkSize);
+	pairs.reserve(_origin.size() / chunkSize);
 
 	std::size_t i = 0;
-	for (; i + chunkSize <= _originVector.size(); i += chunkSize)
+	for (; i + chunkSize <= _origin.size(); i += chunkSize)
 	{
-		std::vector<int> small;
-		std::vector<int> big;
-		small.assign(_originVector.begin() + i,
-			_originVector.begin() + i + blockSize);
-		big.assign(_originVector.begin() + i + blockSize,
-			_originVector.begin() + i + chunkSize);
+		_Seq small;
+		_Seq big;
+		small.assign(_origin.begin() + i,
+			_origin.begin() + i + blockSize);
+		big.assign(_origin.begin() + i + blockSize,
+			_origin.begin() + i + chunkSize);
 		pairs.push_back(std::make_pair(small, big));
 	}
 
@@ -162,23 +188,23 @@ void PmergeMe::_merging(
 		return;
 
 	bool hasStragglerBlock = false;
-	std::vector<int> straggler;
-	if (i + blockSize <= _originVector.size())
+	_Seq straggler;
+	if (i + blockSize <= _origin.size())
 	{
 		hasStragglerBlock = true;
-		straggler.assign(_originVector.begin() + i,
-			_originVector.begin() + i + blockSize);
+		straggler.assign(_origin.begin() + i,
+			_origin.begin() + i + blockSize);
 		i += blockSize;
 	}
 
-	std::vector<int> tail;
-	if (i < _originVector.size())
-		tail.assign(_originVector.begin() + i, _originVector.end());
+	_Seq tail;
+	if (i < _origin.size())
+		tail.assign(_origin.begin() + i, _origin.end());
 
-	std::vector<std::vector<int>> main;
-	std::vector<std::vector<int>> pend;
+	std::vector<_Seq> main;
+	std::vector<_Seq> pend;
 
-	main.reserve(_originVector.size());
+	main.reserve(_origin.size());
 	main.push_back(pairs[0].first);
 	main.push_back(pairs[0].second);
 
@@ -201,60 +227,62 @@ void PmergeMe::_merging(
 		_insertJacobBlock(main, curBlock, blockPos + j);
 	}
 
-	std::vector<int> _tmp;
+	_Seq _tmp;
 	for (auto v : main)
 	{
 		_tmp.insert(_tmp.end(), v.begin(), v.end());
 	}
 	if (!tail.empty())
 		_tmp.insert(_tmp.end(), tail.begin(), tail.end());
-	_originVector = _tmp;
+	_origin = _tmp;
 }
 
-void PmergeMe::_sortPairs(
+template <typename _Seq>
+void PmergeMe<_Seq>::_sortPairs(
 	const std::size_t blockSize,
 	const std::size_t chunkSize)
 {
-	if (_originVector.size() < chunkSize)
+	if (_origin.size() < chunkSize)
 		return ;
 
 	Pairs pairs;
-	pairs.reserve(_originVector.size() / chunkSize);
+	pairs.reserve(_origin.size() / chunkSize);
 
 	std::size_t i = 0;
-	for(; i + chunkSize <= _originVector.size(); i += chunkSize)
+	for(; i + chunkSize <= _origin.size(); i += chunkSize)
 	{	
-		std::vector<int> small;
-		std::vector<int> big;
+		_Seq small;
+		_Seq big;
 
-		small.assign(_originVector.begin() + i,
-			_originVector.begin() + i + blockSize);
-		big.assign(_originVector.begin() + i + blockSize,
-			_originVector.begin() + i + chunkSize);
+		small.assign(_origin.begin() + i,
+			_origin.begin() + i + blockSize);
+		big.assign(_origin.begin() + i + blockSize,
+			_origin.begin() + i + chunkSize);
 		if (*small.rbegin() > *big.rbegin())
 			_swapPair(small, big);
 		pairs.push_back(std::make_pair(small, big));
 	}
-	std::vector<int> tail;
-	tail.assign(_originVector.begin() + i, _originVector.end());
+	_Seq tail;
+	tail.assign(_origin.begin() + i, _origin.end());
 
-	_originVector.clear();
+	_origin.clear();
 	for (i = 0; i < pairs.size(); ++i)
 	{
-		_originVector.insert(_originVector.end(),
+		_origin.insert(_origin.end(),
 			pairs[i].first.begin(), pairs[i].first.end());
-		_originVector.insert(_originVector.end(),
+		_origin.insert(_origin.end(),
 			pairs[i].second.begin(), pairs[i].second.end());
 	}
-	_originVector.insert(_originVector.end(), tail.begin(), tail.end());
+	_origin.insert(_origin.end(), tail.begin(), tail.end());
 }
 
-void PmergeMe::_sortVector(int level)
+template <typename _Seq>
+void PmergeMe<_Seq>::_sortVector(int level)
 {
 	const std::size_t blockSize = (1u << (level - 1));
 	const std::size_t chunkSize = blockSize << 1u;
 
-	if (_originVector.size() < chunkSize)
+	if (_origin.size() < chunkSize)
 		return ;
 	
 	_sortPairs(blockSize, chunkSize);
@@ -262,7 +290,11 @@ void PmergeMe::_sortVector(int level)
 	_merging(blockSize, chunkSize);
 }
 
-void PmergeMe::runSorting()
+template <typename _Seq>
+void PmergeMe<_Seq>::runSorting()
 {
 	_sortVector(1);
 }
+
+template class PmergeMe<std::vector<int>>;
+template class PmergeMe<std::deque<int>>;
