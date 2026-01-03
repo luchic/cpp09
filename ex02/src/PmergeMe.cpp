@@ -6,7 +6,7 @@
 /*   By: nluchini <nluchini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 19:02:28 by nluchini          #+#    #+#             */
-/*   Updated: 2026/01/03 15:40:04 by nluchini         ###   ########.fr       */
+/*   Updated: 2026/01/03 16:10:25 by nluchini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,11 +136,10 @@ void PmergeMe::_swapPair(std::vector<int> &small, std::vector<int> &big)
 	big = tmp;
 }
 
-void PmergeMe::_merging(int level)
+void PmergeMe::_merging(
+	const std::size_t blockSize,
+	const std::size_t chunkSize)
 {
-	const std::size_t blockSize = (1u << (level - 1));
-	const std::size_t chunkSize = blockSize << 1u;
-
 	if (blockSize == 0 || _originVector.size() < chunkSize)
 		return;
 
@@ -152,26 +151,29 @@ void PmergeMe::_merging(int level)
 	{
 		std::vector<int> small;
 		std::vector<int> big;
-		small.assign(_originVector.begin() + i, _originVector.begin() + i + blockSize);
-		big.assign(_originVector.begin() + i + blockSize, _originVector.begin() + i + chunkSize);
+		small.assign(_originVector.begin() + i,
+			_originVector.begin() + i + blockSize);
+		big.assign(_originVector.begin() + i + blockSize,
+			_originVector.begin() + i + chunkSize);
 		pairs.push_back(std::make_pair(small, big));
 	}
+
+	if (pairs.empty())
+		return;
 
 	bool hasStragglerBlock = false;
 	std::vector<int> straggler;
 	if (i + blockSize <= _originVector.size())
 	{
 		hasStragglerBlock = true;
-		straggler.assign(_originVector.begin() + i, _originVector.begin() + i + blockSize);
+		straggler.assign(_originVector.begin() + i,
+			_originVector.begin() + i + blockSize);
 		i += blockSize;
 	}
 
 	std::vector<int> tail;
 	if (i < _originVector.size())
 		tail.assign(_originVector.begin() + i, _originVector.end());
-
-	if (pairs.empty())
-		return;
 
 	std::vector<std::vector<int>> main;
 	std::vector<std::vector<int>> pend;
@@ -187,6 +189,9 @@ void PmergeMe::_merging(int level)
 	}
 	if (hasStragglerBlock)
 		pend.push_back(straggler);
+	
+	if (pend.empty())
+		return;
 
 	const std::vector<std::size_t> order = _jacobInsertionOrder(pend.size());
 	for (std::size_t j = 0; j < order.size(); ++j)
@@ -206,11 +211,10 @@ void PmergeMe::_merging(int level)
 	_originVector = _tmp;
 }
 
-void PmergeMe::_sortVector(int level)
+void PmergeMe::_sortPairs(
+	const std::size_t blockSize,
+	const std::size_t chunkSize)
 {
-	const std::size_t blockSize = (1u << (level - 1));
-	const std::size_t chunkSize = blockSize << 1u;
-
 	if (_originVector.size() < chunkSize)
 		return ;
 
@@ -223,9 +227,10 @@ void PmergeMe::_sortVector(int level)
 		std::vector<int> small;
 		std::vector<int> big;
 
-		// PairBlock bl;
-		small.assign(_originVector.begin() + i, _originVector.begin() + i + blockSize);
-		big.assign(_originVector.begin() + i + blockSize, _originVector.begin() + i + chunkSize);
+		small.assign(_originVector.begin() + i,
+			_originVector.begin() + i + blockSize);
+		big.assign(_originVector.begin() + i + blockSize,
+			_originVector.begin() + i + chunkSize);
 		if (*small.rbegin() > *big.rbegin())
 			_swapPair(small, big);
 		pairs.push_back(std::make_pair(small, big));
@@ -236,18 +241,25 @@ void PmergeMe::_sortVector(int level)
 	_originVector.clear();
 	for (i = 0; i < pairs.size(); ++i)
 	{
-		_originVector.insert(_originVector.end(), pairs[i].first.begin(), pairs[i].first.end());
-		_originVector.insert(_originVector.end(), pairs[i].second.begin(), pairs[i].second.end());
+		_originVector.insert(_originVector.end(),
+			pairs[i].first.begin(), pairs[i].first.end());
+		_originVector.insert(_originVector.end(),
+			pairs[i].second.begin(), pairs[i].second.end());
 	}
 	_originVector.insert(_originVector.end(), tail.begin(), tail.end());
-	
+}
 
-	// std::cout << "Pairs: ";
-	// printVector();
+void PmergeMe::_sortVector(int level)
+{
+	const std::size_t blockSize = (1u << (level - 1));
+	const std::size_t chunkSize = blockSize << 1u;
+
+	if (_originVector.size() < chunkSize)
+		return ;
+	
+	_sortPairs(blockSize, chunkSize);
 	_sortVector(level + 1);
-	_merging(level);
-	// std::cout << "Merged: ";
-	// printVector();
+	_merging(blockSize, chunkSize);
 }
 
 void PmergeMe::runSorting()

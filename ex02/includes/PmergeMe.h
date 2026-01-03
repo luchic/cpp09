@@ -6,7 +6,7 @@
 /*   By: nluchini <nluchini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/20 11:54:43 by nluchini          #+#    #+#             */
-/*   Updated: 2026/01/03 15:39:51 by nluchini         ###   ########.fr       */
+/*   Updated: 2026/01/03 16:09:36 by nluchini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,6 @@ class PmergeMe
 private:
 	std::vector<int> _originVector;
 	std::queue<int> _originQueue;
-	std::vector<int> _tmpMainVector;
-	std::vector<int> _tmpPendVector;
 
 	std::size_t _jacobsthalNumber(std::size_t n);
 	std::vector<std::size_t> _jacobInsertionOrder(std::size_t pairCount);
@@ -40,9 +38,8 @@ private:
 		std::size_t index);
 
 	void _swapPair(std::vector<int> &small, std::vector<int> &big);
-	
-	void _merging(int level);
-
+	void _merging(const std::size_t blockSize, const std::size_t chunkSize);
+	void _sortPairs(const std::size_t blockSize, const std::size_t chunkSize);
 	void _sortVector(int level);
 	void _sortQueue();
 
