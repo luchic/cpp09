@@ -10,7 +10,9 @@ SRC_FILES = PmergeMe.cpp \
 OBJ_FILES = $(addprefix $(OBJ_FOLDER)/, $(SRC_FILES:.cpp=.o))
 
 CXX = g++
-CXXFLAGS = -g -Wall -Wextra -Werror -std=c++17
+CXXFLAGS = -Wall -Wextra -Werror -std=c++17
+DFLAGS = -g -std=c++17
+# CXXFLAGS = -g -std=c++17
 
 all: $(NAME)
 
@@ -22,6 +24,9 @@ $(OBJ_FOLDER)/%.o: $(SRC_FOLDER)/%.cpp | $(OBJ_FOLDER)
 
 $(OBJ_FOLDER):
 	mkdir $(OBJ_FOLDER)
+
+debug: CXXFLAGS = $(DFLAGS)
+debug: fclean $(NAME)
 
 clean:
 	rm -fr $(OBJ_FOLDER)
