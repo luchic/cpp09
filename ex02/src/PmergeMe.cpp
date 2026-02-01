@@ -6,7 +6,7 @@
 /*   By: nluchini <nluchini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 19:02:28 by nluchini          #+#    #+#             */
-/*   Updated: 2026/01/03 17:31:13 by nluchini         ###   ########.fr       */
+/*   Updated: 2026/01/14 19:04:59 by nluchini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,12 @@ template <typename _Seq>
 std::size_t PmergeMe<_Seq>::_jacobsthalNumber(std::size_t n)
 {
 
-	if (n == 0) return 0;
-	if (n == 1) return 1;
-	std::size_t j0 = 0, j1 = 1;
+	if (n == 0)
+		return 0;
+	if (n == 1)
+		return 1;
+	std::size_t j0 = 0;
+	std::size_t j1 = 1;
 	for (std::size_t i = 2; i <= n; ++i)
 	{
 		std::size_t j = j1 + 2 * j0;
