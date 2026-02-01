@@ -6,7 +6,7 @@
 /*   By: nluchini <nluchini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 18:02:33 by nluchini          #+#    #+#             */
-/*   Updated: 2025/12/19 21:34:46 by nluchini         ###   ########.fr       */
+/*   Updated: 2026/02/01 17:06:38 by nluchini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ typedef enum e_error_code {
 class BitcoinExchange
 {
 private:
-	std::map<std::string, unsigned int> _dataAccess;
+	std::map<std::string, double> _dataAccess;
 
 	std::vector<std::string> _split(const std::string& str, char delim);
 	std::string _trimSpace(std::string str);
@@ -49,11 +49,11 @@ private:
 	bool _isValidFormat(std::string format);
 	void _printErrorMessage(std::string value, t_error_code code);
 	void _printErrorMessage(t_error_code code);
-	void _printExchangeMessage(std::string date, float value);
+	void _printExchangeMessage(std::string date, double value);
 	
 	int _getValueByDate(std::string date);
-	std::optional<float> _getCostByDate(std::string date);
-	std::optional<float> _convertValue(std::string value);
+	std::optional<double> _getCostByDate(std::string date);
+	std::optional<double> _convertValue(std::string value);
 	
 	void _convertLine(std::string line);
 

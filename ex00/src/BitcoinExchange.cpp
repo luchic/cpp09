@@ -6,7 +6,7 @@
 /*   By: nluchini <nluchini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 20:24:16 by nluchini          #+#    #+#             */
-/*   Updated: 2025/12/19 21:36:59 by nluchini         ###   ########.fr       */
+/*   Updated: 2026/02/01 17:15:05 by nluchini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,9 +65,9 @@ std::string BitcoinExchange::_trimSpace(std::string s)
 	return s;
 }
 
-std::optional<float> BitcoinExchange::_getCostByDate(std::string date)
+std::optional<double> BitcoinExchange::_getCostByDate(std::string date)
 {
-	auto it = _dataAccess.lower_bound(date);
+	auto it = _dataAccess.upper_bound(date);
 	if (it == _dataAccess.end())
 		return std::nullopt;
 	return it->second;	
@@ -159,12 +159,12 @@ void BitcoinExchange::_printErrorMessage(t_error_code code)
 	_printErrorMessage("", code);
 }
 
-std::optional<float> BitcoinExchange::_convertValue(std::string value)
+std::optional<double> BitcoinExchange::_convertValue(std::string value)
 {
 	try
 	{
 		std::size_t pos;
-		float number = std::stof(value, &pos);
+		double number = std::stod(value, &pos);
 		if (value[pos] != '\0')
 			return std::nullopt;
 		return number;
@@ -221,7 +221,7 @@ bool BitcoinExchange::_isValidFormat(std::string format)
 	return format.compare(origin_format) == 0;
 }
 
-void BitcoinExchange::_printExchangeMessage(std::string date, float value)
+void BitcoinExchange::_printExchangeMessage(std::string date, double value)
 {
 	auto optional_cost = _getCostByDate(date);
 	if (!optional_cost.has_value())
