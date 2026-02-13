@@ -6,7 +6,7 @@
 /*   By: nluchini <nluchini@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 20:24:16 by nluchini          #+#    #+#             */
-/*   Updated: 2026/02/01 17:15:05 by nluchini         ###   ########.fr       */
+/*   Updated: 2026/02/13 18:41:24 by nluchini         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,9 +67,16 @@ std::string BitcoinExchange::_trimSpace(std::string s)
 
 std::optional<double> BitcoinExchange::_getCostByDate(std::string date)
 {
-	auto it = _dataAccess.upper_bound(date);
+	auto it = _dataAccess.lower_bound(date);
+	
 	if (it == _dataAccess.end())
 		return std::nullopt;
+	
+	if (it->first != date && it == _dataAccess.begin())
+		return std::nullopt;
+	
+	if (it->first != date)
+		it--;
 	return it->second;	
 }
 
